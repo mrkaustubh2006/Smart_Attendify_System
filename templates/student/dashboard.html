@@ -1,0 +1,257 @@
+{% extends "shared/base.html" %}
+{% block title %}My Dashboard{% endblock %}
+
+{% block content %}
+
+<div class="container-fluid">
+
+```
+<div class="d-flex justify-content-between align-items-center mb-5">
+
+    <div>
+        <h1 class="mb-1">
+            👋 Hello, {{ student.name.split()[0] }}!
+        </h1>
+
+        <p class="text-muted mb-0" style="font-weight:600">
+            {{ student.class_name }} · Roll No. {{ student.roll_no }}
+        </p>
+    </div>
+
+    <div class="d-flex gap-2">
+
+        <a href="{{ url_for('student.qr_code') }}"
+           class="btn btn-primary btn-lg">
+            <i class="fas fa-qrcode me-2"></i>
+            My QR Code
+        </a>
+
+        <a href="{{ url_for('auth.logout') }}"
+           class="btn btn-danger btn-lg">
+            <i class="fas fa-sign-out-alt me-2"></i>
+            Logout
+        </a>
+
+    </div>
+
+</div>
+
+{% if overall_percentage >= 75 %}
+    {% set progress_class = "success" %}
+{% elif overall_percentage >= 60 %}
+    {% set progress_class = "warning" %}
+{% else %}
+    {% set progress_class = "danger" %}
+{% endif %}
+
+<div class="row g-4 mb-5">
+
+    <div class="col-md-4">
+
+        <div class="clay-stat" style="border-radius:var(--cr-xl)">
+
+            <div class="clay-stat-blob bg-{{ progress_class }}"></div>
+
+            <div class="clay-stat-icon bg-{{ progress_class }}">
+                <i class="fas fa-chart-pie"></i>
+            </div>
+
+            <div class="clay-stat-val">
+                {{ overall_percentage }}%
+            </div>
+
+            <div class="clay-stat-label">
+                Overall Attendance
+            </div>
+
+            <div class="mt-3">
+
+                <div class="progress" style="height:10px;">
+
+                    <div class="progress-bar bg-{{ progress_class }}"
+                         role="progressbar"
+                         style="width: {{ overall_percentage }}%;">
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <div class="col-md-4">
+
+        <div class="clay-stat">
+
+            <div class="clay-stat-blob"
+                 style="background:var(--clay-secondary);">
+            </div>
+
+            <div class="clay-stat-icon"
+                 style="background:linear-gradient(135deg,var(--clay-secondary),#50B8D8);">
+                <i class="fas fa-book"></i>
+            </div>
+
+            <div class="clay-stat-val">
+                {{ subject_stats|length }}
+            </div>
+
+            <div class="clay-stat-label">
+                Subjects Enrolled
+            </div>
+
+        </div>
+
+    </div>
+
+    <div class="col-md-4">
+
+        <a href="{{ url_for('student.qr_code') }}"
+           class="clay-stat d-block text-decoration-none">
+
+            <div class="clay-stat-blob"
+                 style="background:var(--clay-accent);">
+            </div>
+
+            <div class="clay-stat-icon"
+                 style="background:linear-gradient(135deg,var(--clay-accent),#E87050);">
+                <i class="fas fa-qrcode"></i>
+            </div>
+
+            <div class="clay-stat-val"
+                 style="font-size:22px;padding-top:6px">
+                Download
+            </div>
+
+            <div class="clay-stat-label">
+                My QR Code
+            </div>
+
+        </a>
+
+    </div>
+
+</div>
+
+<h3 class="mb-4">
+    📊 Subject-wise Attendance
+</h3>
+
+<div class="card">
+
+    <div class="table-responsive">
+
+        <table class="table mb-0">
+
+            <thead class="table-light">
+
+                <tr>
+                    <th>Subject</th>
+                    <th>Code</th>
+                    <th>Total</th>
+                    <th>Present</th>
+                    <th>Attendance</th>
+                    <th>Status</th>
+                </tr>
+
+            </thead>
+
+            <tbody>
+
+                {% if subject_stats %}
+
+                    {% for stat in subject_stats %}
+
+                    <tr>
+
+                        <td>
+                            <strong>{{ stat.subject.subject_name }}</strong>
+                        </td>
+
+                        <td>
+                            <code>{{ stat.subject.subject_code }}</code>
+                        </td>
+
+                        <td>{{ stat.total }}</td>
+
+                        <td>
+                            <span class="badge bg-success">
+                                {{ stat.present }}
+                            </span>
+                        </td>
+
+                        <td style="min-width:180px;">
+
+                            {% if stat.percentage >= 75 %}
+                                {% set subject_class = "success" %}
+                            {% elif stat.percentage >= 60 %}
+                                {% set subject_class = "warning" %}
+                            {% else %}
+                                {% set subject_class = "danger" %}
+                            {% endif %}
+
+                            <div class="progress">
+
+                                <div class="progress-bar bg-{{ subject_class }}"
+                                     role="progressbar"
+                                     style="width: {{ stat.percentage }}%;">
+
+                                    {{ stat.percentage }}%
+
+                                </div>
+
+                            </div>
+
+                        </td>
+
+                        <td>
+
+                            <span class="badge bg-{{ subject_class }}">
+
+                                {% if stat.percentage >= 75 %}
+                                    Good
+                                {% elif stat.percentage >= 60 %}
+                                    Fair
+                                {% else %}
+                                    Low
+                                {% endif %}
+
+                            </span>
+
+                        </td>
+
+                    </tr>
+
+                    {% endfor %}
+
+                {% else %}
+
+                <tr>
+
+                    <td colspan="6"
+                        class="text-center py-5"
+                        style="color:var(--clay-muted);">
+
+                        <i class="fas fa-inbox fa-2x d-block mb-2"></i>
+
+                        No attendance records yet.
+
+                    </td>
+
+                </tr>
+
+                {% endif %}
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+</div>
+```
+
+</div>
+{% endblock %}

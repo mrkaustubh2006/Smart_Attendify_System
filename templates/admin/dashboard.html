@@ -1,0 +1,164 @@
+{% extends "shared/base.html" %}
+{% block title %}Admin Dashboard{% endblock %}
+{% block content %}
+<div class="container-fluid">
+
+  <!-- Header -->
+  <div class="d-flex justify-content-between align-items-center mb-4">
+
+    <h1>Admin Dashboard</h1>
+
+    <a href="{{ url_for('auth.logout') }}"
+       class="btn btn-danger">
+
+        <i class="fas fa-sign-out-alt me-2"></i>
+        Logout
+
+    </a>
+
+</div>
+      <p class="text-muted mb-0" style="font-weight:600">Welcome back! Here's what's happening today.</p>
+    </div>
+    <div class="d-flex gap-2">
+      <a href="{{ url_for('admin.export_excel_route') }}" class="btn btn-success">
+        <i class="fas fa-file-excel me-1"></i> Excel
+      </a>
+      <a href="{{ url_for('admin.export_pdf_route') }}" class="btn btn-danger">
+        <i class="fas fa-file-pdf me-1"></i> PDF
+      </a>
+    </div>
+  </div>
+
+  <!-- Stat Cards -->
+  <div class="row g-4 mb-5">
+    <div class="col-md-3">
+      <div class="clay-stat">
+        <div class="clay-stat-blob" style="background:var(--clay-primary)"></div>
+        <div class="clay-stat-icon" style="background:linear-gradient(135deg,var(--clay-primary),var(--clay-primary-d))">
+          <i class="fas fa-user-graduate"></i>
+        </div>
+        <div class="clay-stat-val">{{ stats.students }}</div>
+        <div class="clay-stat-label">Total Students</div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="clay-stat">
+        <div class="clay-stat-blob" style="background:var(--clay-secondary)"></div>
+        <div class="clay-stat-icon" style="background:linear-gradient(135deg,var(--clay-secondary),#50B8D8)">
+          <i class="fas fa-chalkboard-user"></i>
+        </div>
+        <div class="clay-stat-val">{{ stats.teachers }}</div>
+        <div class="clay-stat-label">Total Teachers</div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="clay-stat">
+        <div class="clay-stat-blob" style="background:var(--clay-accent)"></div>
+        <div class="clay-stat-icon" style="background:linear-gradient(135deg,var(--clay-accent),#E87050)">
+          <i class="fas fa-book-open"></i>
+        </div>
+        <div class="clay-stat-val">{{ stats.subjects }}</div>
+        <div class="clay-stat-label">Active Subjects</div>
+      </div>
+    </div>
+    <div class="col-md-3">
+      <div class="clay-stat">
+        <div class="clay-stat-blob" style="background:var(--clay-success)"></div>
+        <div class="clay-stat-icon" style="background:linear-gradient(135deg,var(--clay-success),#50C088)">
+          <i class="fas fa-calendar-check"></i>
+        </div>
+        <div class="clay-stat-val">{{ stats.today_attendance }}</div>
+        <div class="clay-stat-label">Today's Attendance</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Charts + Logs -->
+  <div class="row g-4">
+    <div class="col-lg-8">
+      <div class="card">
+        <div class="card-header">
+          <i class="fas fa-chart-line me-2"></i> Attendance Trend — Last 14 Days
+        </div>
+        <div class="card-body">
+          <canvas id="attendanceChart" height="100"></canvas>
+        </div>
+      </div>
+    </div>
+    <div class="col-lg-4">
+      <div class="card h-100">
+        <div class="card-header"><i class="fas fa-shield-halved me-2"></i> Recent Activity</div>
+        <div class="card-body" style="overflow-y:auto;max-height:320px">
+          {% for log in recent_logs %}
+          <div class="d-flex gap-2 mb-3 align-items-start">
+            <div style="width:32px;height:32px;border-radius:10px;background:linear-gradient(135deg,var(--clay-primary),var(--clay-primary-d));display:flex;align-items:center;justify-content:center;flex-shrink:0">
+              <i class="fas fa-bolt" style="font-size:12px;color:#fff"></i>
+            </div>
+            <div>
+              <div style="font-size:12px;font-weight:700;color:var(--clay-text)">{{ log.action }}</div>
+              <div style="font-size:11px;color:var(--clay-muted)">{{ log.timestamp.strftime('%b %d, %H:%M') }} · {{ log.user.email[:20] if log.user else 'System' }}</div>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Quick Actions -->
+  <div class="row g-3 mt-1">
+    <div class="col-12"><h4 class="mb-2 mt-3">Quick Actions</h4></div>
+    {% for label, icon, url, color in [
+      ('Add Student','user-graduate','admin.add_student','primary'),
+      ('Add Teacher','chalkboard-user','admin.add_teacher','secondary'),
+      ('Add Subject','book-open','admin.add_subject','accent'),
+      ('View Attendance','clipboard-check','admin.attendance','success'),
+    ] %}
+    <div class="col-md-3">
+      <a href="{{ url_for(url) }}" class="card text-decoration-none text-center p-4"
+         style="display:block;border-radius:var(--cr-xl)">
+        <div style="width:56px;height:56px;border-radius:var(--cr-lg);
+          background:linear-gradient(135deg,var(--clay-{{ color }}),var(--clay-{{ color }}-d,var(--clay-{{ color }})));
+          display:flex;align-items:center;justify-content:center;margin:0 auto 14px;
+          box-shadow:var(--cs-sm)">
+          <i class="fas fa-{{ icon }}" style="font-size:22px;color:#fff"></i>
+        </div>
+        <div style="font-weight:800;color:var(--clay-text)">{{ label }}</div>
+      </a>
+    </div>
+    {% endfor %}
+  </div>
+
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
+<script>
+const ctx = document.getElementById('attendanceChart').getContext('2d');
+new Chart(ctx, {
+  type: 'line',
+  data: {
+    labels: {{ chart_labels|tojson }},
+    datasets: [{
+      label: 'Attendance Marked',
+      data: {{ chart_data|tojson }},
+      borderColor: '#7B68EE',
+      backgroundColor: 'rgba(123,104,238,.12)',
+      borderWidth: 3,
+      tension: 0.4,
+      fill: true,
+      pointBackgroundColor: '#7B68EE',
+      pointRadius: 5,
+      pointHoverRadius: 8,
+    }]
+  },
+  options: {
+    responsive: true,
+    plugins: { legend: { display: false } },
+    scales: {
+      x: { grid: { color: 'rgba(123,104,238,.06)' } },
+      y: { beginAtZero: true, grid: { color: 'rgba(123,104,238,.06)' } }
+    }
+  }
+});
+</script>
+{% endblock %}

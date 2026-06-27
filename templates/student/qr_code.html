@@ -1,0 +1,45 @@
+{% extends "shared/base.html" %}
+{% block title %}My QR Code{% endblock %}
+{% block content %}
+<div class="container-fluid">
+  <div class="row justify-content-center">
+    <div class="col-lg-6">
+      <div class="card text-center">
+        <div class="card-header bg-primary"><i class="fas fa-qrcode me-2"></i> Your Unique QR Code</div>
+        <div class="card-body py-5">
+          {% if student.qr_image_path %}
+          <div style="display:inline-block;padding:20px;background:#fff;border-radius:var(--cr-lg);box-shadow:var(--cs-lg);margin-bottom:24px">
+            <img src="{{ url_for('static', filename=student.qr_image_path) }}"
+                 alt="QR Code" style="max-width:300px;border-radius:var(--cr-md)">
+          </div>
+          {% else %}
+          <div class="alert alert-warning">QR code not generated yet. Contact admin.</div>
+          {% endif %}
+          <h4 class="fw-bold mt-2">{{ student.name }}</h4>
+          <p class="text-muted mb-4">
+            <code>{{ student.student_id }}</code> &nbsp;·&nbsp;
+            Roll <code>{{ student.roll_no }}</code> &nbsp;·&nbsp;
+            {{ student.class_name }}
+          </p>
+          {% if student.qr_image_path %}
+          <a href="{{ url_for('student.download_qr') }}" class="btn btn-primary btn-lg">
+            <i class="fas fa-download me-2"></i> Download QR Code
+          </a>
+          {% endif %}
+        </div>
+      </div>
+      <div class="card mt-4">
+        <div class="card-header"><i class="fas fa-circle-info me-2"></i> How to Use</div>
+        <div class="card-body">
+          <ol class="mb-0" style="font-weight:600;line-height:2">
+            <li>Show your QR code to the teacher during attendance</li>
+            <li>Teacher scans it with the Smart Attendance scanner</li>
+            <li>Your attendance is marked instantly with a timestamp</li>
+            <li>Download and keep a backup copy of your QR</li>
+          </ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

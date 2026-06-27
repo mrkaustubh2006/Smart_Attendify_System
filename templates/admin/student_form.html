@@ -1,0 +1,56 @@
+{% extends "shared/base.html" %}
+{% block title %}{% if student %}Edit{% else %}Add{% endif %} Student{% endblock %}
+{% block content %}
+<div class="container-fluid">
+    <h1 class="h2 mb-4">{% if student %}Edit Student{% else %}Add New Student{% endif %}</h1>
+    <div class="card shadow">
+        <div class="card-body">
+            <form method="POST" class="row g-3">
+                <div class="col-md-6">
+                    <label class="form-label">Student ID</label>
+                    <input type="text" class="form-control" name="student_id" value="{{ student.student_id if student else '' }}" {% if student %}readonly{% endif %} required>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Full Name</label>
+                    <input type="text" class="form-control" name="name" value="{{ student.name if student else '' }}" required>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Email</label>
+                    <input type="email" class="form-control" name="email" value="{{ student.email if student else '' }}" {% if student %}readonly{% endif %} required>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Roll Number</label>
+                    <input type="text" class="form-control" name="roll_no" value="{{ student.roll_no if student else '' }}" required>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Class</label>
+                    <select class="form-select" name="class_name" required>
+                        <option>-- Select Class --</option>
+                        {% for cls in classes %}
+                        <option value="{{ cls.class_name }}" {% if student and student.class_name == cls.class_name %}selected{% endif %}>{{ cls.class_name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Department</label>
+                    <input type="text" class="form-control" name="department" value="{{ student.department if student else '' }}">
+                </div>
+                {% if not student %}
+                <div class="col-md-6">
+                    <label class="form-label">Password</label>
+                    <input type="password" class="form-control" name="password" required>
+                </div>
+                {% endif %}
+                <div class="col-12">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save"></i> {% if student %}Update{% else %}Add{% endif %} Student
+                    </button>
+                    <a href="{{ url_for('admin.students') }}" class="btn btn-secondary">
+                        <i class="fas fa-times"></i> Cancel
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

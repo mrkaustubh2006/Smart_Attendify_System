@@ -1,0 +1,332 @@
+{% extends "shared/base.html" %}
+{% block title %}Mark Attendance{% endblock %}
+{% block content %}
+<div class="container-fluid">
+  <h1 class="mb-1">📷 Mark Attendance</h1>
+  <p class="text-muted mb-4" style="font-weight:600">Select a subject, activate the session, then scan student QR codes.</p>
+
+  <div class="row g-4">
+    <!-- Scanner Panel -->
+    <div class="col-lg-7">
+      <div class="card">
+        <div class="card-header bg-primary">
+          <i class="fas fa-qrcode me-2"></i> QR Code Scanner
+        </div>
+        <div class="card-body">
+          <!-- Subject -->
+          <div class="mb-4">
+            <label class="form-label">Select Subject</label>
+            <select class="form-select form-select-lg" id="subject_select" onchange="updateSession()">
+              <option value="">— Choose Subject —</option>
+              {% for subj in subjects %}
+              <option value="{{ subj.id }}" {% if subject_id==subj.id %}selected{% endif %}>
+                {{ subj.subject_name }} · {{ subj.subject_code }}
+              </option>
+              {% endfor %}
+            </select>
+          </div>
+
+          <!-- Session Toggle -->
+          <div class="mb-4">
+            <label class="form-label">Session</label>
+            <div class="btn-group w-100">
+              <input type="radio" class="btn-check" name="session" id="inactive" value="false"
+                     {% if not session_active %}checked{% endif %} onchange="updateSession()">
+              <label class="btn btn-outline-danger" for="inactive" style="border-radius:var(--cr-md) 0 0 var(--cr-md)!important">
+                <i class="fas fa-stop-circle me-2"></i> Inactive
+              </label>
+              <input type="radio" class="btn-check" name="session" id="active" value="true"
+                     {% if session_active %}checked{% endif %} onchange="updateSession()">
+              <label class="btn btn-outline-success" for="active" style="border-radius:0 var(--cr-md) var(--cr-md) 0!important">
+                <i class="fas fa-play-circle me-2"></i> Active
+              </label>
+            </div>
+          </div>
+
+          {% if session_active and subject_id %}
+          <!-- Camera -->
+          <div class="scanner-box scanner-active mb-3" style="min-height:280px">
+            <div id="reader" style="width:100%;min-height:280px"></div>
+          </div>
+          <!-- Manual entry -->
+          <div class="mb-2">
+            <label class="form-label">Or paste / type QR data manually</label>
+            <input type="text" id="manual_qr" class="form-control" placeholder="Paste QR token here…">
+          </div>
+          {% else %}
+          <div class="scanner-box d-flex align-items-center justify-content-center" style="min-height:220px">
+            <div class="text-center" style="color:var(--clay-muted)">
+              <i class="fas fa-camera fa-4x mb-3" style="opacity:.3"></i>
+              <p style="font-weight:700">Select a subject &amp; activate session to start scanning</p>
+            </div>
+          </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+
+    <!-- Right Panel -->
+    <div class="col-lg-5">
+      <!-- Feedback -->
+      <div class="card mb-4">
+        <div class="card-header bg-info"><i class="fas fa-satellite-dish me-2"></i> Live Feedback</div>
+        <div class="card-body text-center py-4">
+          <div id="feedback" style="font-weight:700;color:var(--clay-muted)">
+            <i class="fas fa-circle-dot fa-2x mb-2 d-block" style="opacity:.3"></i>
+            Waiting for scan…
+          </div>
+        </div>
+      </div>
+
+      <!-- Marked list -->
+      <div class="card">
+        <div class="card-header bg-success">
+          <i class="fas fa-list-check me-2"></i> Marked Today ({{ marked_today|length }})
+        </div>
+        <div class="card-body p-3" style="max-height:380px;overflow-y:auto">
+          {% if marked_today %}
+            {% for record in marked_today %}
+            <div class="marked-item">
+              <div style="font-weight:800;font-size:14px">{{ record[1] }}</div>
+              <div style="font-size:12px;color:var(--clay-muted)">
+                <i class="fas fa-id-badge me-1"></i>{{ record[2] }}
+                &nbsp;·&nbsp;
+                <i class="fas fa-clock me-1"></i>{{ record[0].time.strftime('%H:%M:%S') }}
+              </div>
+            </div>
+            {% endfor %}
+          {% else %}
+            <div class="text-center py-4" style="color:var(--clay-muted);font-weight:600">
+              <i class="fas fa-inbox fa-2x mb-2 d-block" style="opacity:.3"></i>
+              No students marked yet
+            </div>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://unpkg.com/html5-qrcode"></script>
+
+<script>
+
+let scanner = null;
+
+const subjectSelect = document.getElementById("subject_select");
+const manualInput   = document.getElementById("manual_qr");
+const feedbackDiv   = document.getElementById("feedback");
+
+function updateSession() {
+
+    const subjectId =
+        document.getElementById("subject_select").value;
+
+    const sessionActive =
+        document.getElementById("active").checked;
+
+    if (!subjectId) {
+        alert("Please select a subject first.");
+        return;
+    }
+
+    window.location.href =
+        "/teacher/attendance?subject_id=" +
+        subjectId +
+        "&session=" +
+        sessionActive;
+}
+
+function setFeedback(type, msg) {
+
+    const colors = {
+        success: "#28a745",
+        danger: "#dc3545",
+        warning: "#ffc107",
+        info: "#0d6efd"
+    };
+
+    feedbackDiv.innerHTML =
+        `<span style="color:${colors[type] || '#000'}">${msg}</span>`;
+}
+
+function markAttendance(token) {
+
+    const subjectId = subjectSelect.value;
+
+    if (!subjectId) {
+        setFeedback("warning", "Select a subject first");
+        return;
+    }
+
+    setFeedback("info", "Verifying...");
+
+    fetch("/teacher/api/mark-attendance", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+            qr_token: token,
+            subject_id: parseInt(subjectId)
+        })
+    })
+
+    .then(response => response.json())
+
+    .then(data => {
+
+        console.log(data);
+
+        if (data.success) {
+
+            setFeedback(
+                "success",
+                "✓ " + data.message
+            );
+
+            if (manualInput) {
+                manualInput.value = "";
+            }
+
+            setTimeout(() => {
+                location.reload();
+            }, 1200);
+
+        } else {
+
+            setFeedback(
+                "danger",
+                data.message
+            );
+        }
+
+    })
+
+    .catch(error => {
+
+        console.error(error);
+
+        setFeedback(
+            "danger",
+            "Attendance API Error"
+        );
+
+    });
+
+}
+
+function startScanner() {
+
+    if (scanner) return;
+
+    const reader = document.getElementById("reader");
+
+    if (!reader) {
+        console.log("Reader not found");
+        return;
+    }
+
+    Html5Qrcode.getCameras()
+
+    .then(cameras => {
+
+        console.log("Cameras:", cameras);
+
+        if (!cameras.length) {
+
+            setFeedback(
+                "danger",
+                "No camera found"
+            );
+
+            return;
+        }
+
+        scanner = new Html5Qrcode("reader");
+
+        scanner.start(
+            cameras[0].id,
+            {
+                fps: 10,
+                qrbox: 250
+            },
+            (decodedText) => {
+                markAttendance(decodedText);
+            },
+            () => {}
+        );
+
+        setFeedback(
+            "success",
+            "Camera Started"
+        );
+
+    })
+
+    .catch(error => {
+
+        console.error(error);
+
+        setFeedback(
+            "danger",
+            "Camera permission denied"
+        );
+
+    });
+
+}
+
+function stopScanner() {
+
+    if (!scanner) return;
+
+    scanner.stop()
+        .then(() => {
+            scanner.clear();
+            scanner = null;
+        })
+        .catch(err => console.log(err));
+
+}
+
+if (manualInput) {
+
+    manualInput.addEventListener("change", function() {
+
+        const value = this.value.trim();
+
+        if (value) {
+            markAttendance(value);
+        }
+
+    });
+
+}
+
+document.addEventListener("DOMContentLoaded", function() {
+
+    console.log("Page Loaded");
+
+    const activeRadio =
+        document.getElementById("active");
+
+    if (
+        activeRadio &&
+        activeRadio.checked &&
+        document.getElementById("reader")
+    ) {
+
+        startScanner();
+
+    }
+
+});
+
+window.addEventListener(
+    "beforeunload",
+    stopScanner
+);
+
+</script>
+{% endblock %}

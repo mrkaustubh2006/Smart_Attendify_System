@@ -1,0 +1,48 @@
+{% extends "shared/base.html" %}
+{% block title %}Attendance Reports{% endblock %}
+{% block content %}
+<div class="container-fluid">
+  <h1 class="h2 mb-4"><i class="fas fa-chart-bar text-primary"></i> Attendance Reports</h1>
+  <div class="card mb-4">
+    <div class="card-body">
+      <form method="GET" class="d-flex gap-2">
+        <select name="subject_id" class="form-select">
+          <option value="">-- Select Subject --</option>
+          {% for s in subjects %}<option value="{{ s.id }}" {% if subject_id==s.id %}selected{% endif %}>{{ s.subject_name }} ({{ s.subject_code }})</option>{% endfor %}
+        </select>
+        <button type="submit" class="btn btn-primary"><i class="fas fa-chart-pie"></i> Generate</button>
+      </form>
+    </div>
+  </div>
+  {% if stats %}
+  <div class="card shadow">
+    <div class="card-header py-3"><h6 class="m-0 fw-bold text-primary">Student-wise Attendance</h6></div>
+    <div class="table-responsive">
+      <table class="table table-hover mb-0">
+        <thead class="table-light">
+          <tr><th>Student ID</th><th>Name</th><th>Total</th><th>Present</th><th>Attendance %</th></tr>
+        </thead>
+        <tbody>
+          {% for s in stats %}
+          <tr>
+            <td><code>{{ s.student_id }}</code></td>
+            <td>{{ s.student_name }}</td>
+            <td>{{ s.total }}</td>
+            <td><span class="badge bg-success">{{ s.present }}</span></td>
+            <td>
+              <div class="progress" style="height:22px">
+                <div class="progress-bar bg-{{ 'success' if s.percentage>=75 else ('warning' if s.percentage>=60 else 'danger') }}"
+                     style="width:{{ s.percentage }}%">{{ s.percentage }}%</div>
+              </div>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+  {% elif subject_id %}
+  <div class="alert alert-warning">No attendance records for this subject yet.</div>
+  {% endif %}
+</div>
+{% endblock %}

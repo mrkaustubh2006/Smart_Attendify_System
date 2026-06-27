@@ -1,0 +1,18 @@
+{% extends "shared/base.html" %}
+{% block title %}Error 500{% endblock %}
+{% block content %}
+<div class="login-bg">
+  <div style="text-align:center;animation:loginPop .6s cubic-bezier(.34,1.56,.64,1)">
+    <div style="font-size:100px;font-weight:900;color:var(--clay-primary);line-height:1;margin-bottom:16px">500</div>
+    <h2 style="color:var(--clay-text);margin-bottom:12px">
+      Server Error
+    </h2>
+    <p style="color:var(--clay-muted);font-weight:600;margin-bottom:32px">
+      Something went wrong on our end.
+    </p>
+    <a href="{{ url_for('auth.index') }}" class="btn btn-primary btn-lg">
+      <i class="fas fa-house me-2"></i> Go Home
+    </a>
+  </div>
+</div>
+{% endblock %}

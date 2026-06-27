@@ -1,0 +1,40 @@
+{% extends "shared/base.html" %}
+{% block title %}My Attendance{% endblock %}
+{% block content %}
+<div class="container-fluid">
+  <h1 class="h2 mb-4"><i class="fas fa-clipboard-check text-primary"></i> My Attendance</h1>
+  <div class="card mb-4">
+    <div class="card-body">
+      <form method="GET" class="d-flex gap-2">
+        <select name="subject_id" class="form-select">
+          <option value="">-- All Subjects --</option>
+          {% for s in subjects %}<option value="{{ s.id }}" {% if subject_id==s.id %}selected{% endif %}>{{ s.subject_name }}</option>{% endfor %}
+        </select>
+        <button type="submit" class="btn btn-primary"><i class="fas fa-filter"></i> Filter</button>
+      </form>
+    </div>
+  </div>
+  <div class="card shadow">
+    <div class="table-responsive">
+      <table class="table table-hover mb-0">
+        <thead class="table-light">
+          <tr><th>Date</th><th>Time</th><th>Subject</th><th>Status</th><th>Method</th></tr>
+        </thead>
+        <tbody>
+          {% for r in records.items %}
+          <tr>
+            <td>{{ r.date }}</td>
+            <td>{{ r.time.strftime('%H:%M') }}</td>
+            <td>{{ r.subject.subject_name }}<br><code>{{ r.subject.subject_code }}</code></td>
+            <td><span class="badge bg-{{ 'success' if r.status=='present' else 'danger' }}">{{ r.status.title() }}</span></td>
+            <td><span class="badge bg-info">{{ r.method.replace('_',' ').title() }}</span></td>
+          </tr>
+          {% else %}
+          <tr><td colspan="5" class="text-center text-muted py-4">No records yet.</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}

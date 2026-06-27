@@ -1,0 +1,59 @@
+{% extends "shared/base.html" %}
+{% block title %}Login — Smart Attendance{% endblock %}
+{% block content %}
+<!-- Decorative blobs -->
+<div class="bg-blob bg-blob-1"></div>
+<div class="bg-blob bg-blob-2"></div>
+<div class="bg-blob bg-blob-3"></div>
+
+<div class="login-bg">
+  <div class="login-card">
+    <div class="login-header">
+      <div class="login-icon"><i class="fas fa-graduation-cap"></i></div>
+      <div class="login-title">Smart Attendance</div>
+      <div class="login-sub">QR-Based Attendance Management System</div>
+    </div>
+    <div class="login-body">
+      <form method="POST">
+        <div class="mb-4">
+          <label class="form-label">Email Address</label>
+          <div class="input-group">
+            <span class="input-group-text" style="background:rgba(123,104,238,.08);border:2.5px solid rgba(123,104,238,.18);border-right:none;border-radius:var(--cr-md) 0 0 var(--cr-md)">
+              <i class="fas fa-envelope text-primary"></i>
+            </span>
+            <input type="email" class="form-control" name="email" placeholder="your@email.com"
+              style="border-left:none;border-radius:0 var(--cr-md) var(--cr-md) 0" required>
+          </div>
+        </div>
+        <div class="mb-4">
+          <label class="form-label">Password</label>
+          <div class="input-group">
+            <span class="input-group-text" style="background:rgba(123,104,238,.08);border:2.5px solid rgba(123,104,238,.18);border-right:none;border-radius:var(--cr-md) 0 0 var(--cr-md)">
+              <i class="fas fa-lock text-primary"></i>
+            </span>
+            <input type="password" class="form-control" name="password" placeholder="••••••••"
+              style="border-left:none;border-radius:0 var(--cr-md) var(--cr-md) 0" required>
+          </div>
+        </div>
+        <div class="mb-4 form-check">
+          <input class="form-check-input" type="checkbox" name="remember" id="remember">
+          <label class="form-check-label" for="remember" style="font-weight:600;color:var(--clay-muted)">
+            Remember me for 7 days
+          </label>
+        </div>
+        <button type="submit" class="btn btn-primary w-100 btn-lg">
+          <i class="fas fa-right-to-bracket me-2"></i> Sign In
+        </button>
+      </form>
+      <hr class="my-4" style="border-color:rgba(123,104,238,.15)">
+      <p class="text-center mb-0" style="font-weight:600;color:var(--clay-muted)">
+        New student? <a href="{{ url_for('auth.register') }}" style="color:var(--clay-primary);font-weight:800">Register here →</a>
+      </p>
+      <div class="alert alert-info mt-4 mb-0" style="font-size:13px">
+        <strong><i class="fas fa-circle-info me-1"></i> Demo:</strong>
+        <code>admin@school.edu</code> / <code>Admin@1234</code>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

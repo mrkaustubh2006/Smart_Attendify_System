@@ -1,0 +1,42 @@
+{% extends "shared/base.html" %}
+{% block title %}{% if subject %}Edit{% else %}Add{% endif %} Subject{% endblock %}
+{% block content %}
+<div class="container-fluid">
+    <h1 class="h2 mb-4">{% if subject %}Edit Subject{% else %}Add New Subject{% endif %}</h1>
+    <div class="card shadow">
+        <div class="card-body">
+            <form method="POST" class="row g-3">
+                <div class="col-md-6">
+                    <label class="form-label">Subject Name</label>
+                    <input type="text" class="form-control" name="subject_name" value="{{ subject.subject_name if subject else '' }}" required>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Subject Code</label>
+                    <input type="text" class="form-control" name="subject_code" value="{{ subject.subject_code if subject else '' }}" {% if subject %}readonly{% endif %} required>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Class</label>
+                    <select class="form-select" name="class_name">
+                        <option>-- Select Class --</option>
+                        {% for cls in classes %}
+                        <option value="{{ cls.class_name }}" {% if subject and subject.class_name == cls.class_name %}selected{% endif %}>{{ cls.class_name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">Department</label>
+                    <input type="text" class="form-control" name="department" value="{{ subject.department if subject else '' }}">
+                </div>
+                <div class="col-12">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save"></i> {% if subject %}Update{% else %}Add{% endif %} Subject
+                    </button>
+                    <a href="{{ url_for('admin.subjects') }}" class="btn btn-secondary">
+                        <i class="fas fa-times"></i> Cancel
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

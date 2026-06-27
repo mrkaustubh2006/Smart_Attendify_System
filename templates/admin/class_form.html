@@ -1,0 +1,29 @@
+{% extends "shared/base.html" %}
+{% block title %}Add Class{% endblock %}
+{% block content %}
+<div class="container-fluid">
+  <h1 class="h2 mb-4">Add New Class</h1>
+  <div class="card shadow" style="max-width:600px">
+    <div class="card-body">
+      <form method="POST" class="row g-3">
+        <div class="col-12">
+          <label class="form-label">Class Name</label>
+          <input type="text" class="form-control" name="class_name" placeholder="e.g. B.Tech 2nd Year - A" required>
+        </div>
+        <div class="col-12">
+          <label class="form-label">Department</label>
+          <input type="text" class="form-control" name="department" placeholder="e.g. Computer Science" required>
+        </div>
+        <div class="col-12">
+          <label class="form-label">Academic Year</label>
+          <input type="text" class="form-control" name="academic_year" placeholder="e.g. 2024-2025">
+        </div>
+        <div class="col-12">
+          <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Save Class</button>
+          <a href="{{ url_for('admin.classes') }}" class="btn btn-secondary">Cancel</a>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}

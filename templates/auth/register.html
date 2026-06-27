@@ -1,0 +1,57 @@
+{% extends "shared/base.html" %}
+{% block title %}Register — Smart Attendance{% endblock %}
+{% block content %}
+<div class="bg-blob bg-blob-1"></div>
+<div class="bg-blob bg-blob-2"></div>
+
+<div class="login-bg">
+  <div class="login-card" style="max-width:560px">
+    <div class="login-header">
+      <div class="login-icon"><i class="fas fa-user-plus"></i></div>
+      <div class="login-title">Create Account</div>
+      <div class="login-sub">Student Self-Registration Portal</div>
+    </div>
+    <div class="login-body">
+      <form method="POST" class="row g-3">
+        <div class="col-md-6">
+          <label class="form-label">Full Name *</label>
+          <input type="text" class="form-control" name="name" placeholder="John Doe" required>
+        </div>
+        <div class="col-md-6">
+          <label class="form-label">Email Address *</label>
+          <input type="email" class="form-control" name="email" placeholder="john@school.edu" required>
+        </div>
+        <div class="col-md-6">
+          <label class="form-label">Student ID *</label>
+          <input type="text" class="form-control" name="student_id" placeholder="STU2024001" required>
+        </div>
+        <div class="col-md-6">
+          <label class="form-label">Roll Number *</label>
+          <input type="text" class="form-control" name="roll_no" placeholder="42" required>
+        </div>
+        <div class="col-md-6">
+          <label class="form-label">Class / Section *</label>
+          <input type="text" class="form-control" name="class_name" placeholder="B.Tech 2nd Year - A" required>
+        </div>
+        <div class="col-md-6">
+          <label class="form-label">Department</label>
+          <input type="text" class="form-control" name="department" placeholder="Computer Science">
+        </div>
+        <div class="col-12">
+          <label class="form-label">Password *</label>
+          <input type="password" class="form-control" name="password" placeholder="Min 8 characters" required>
+        </div>
+        <div class="col-12 mt-2">
+          <button type="submit" class="btn btn-primary w-100 btn-lg">
+            <i class="fas fa-user-check me-2"></i> Create Account
+          </button>
+        </div>
+      </form>
+      <hr class="my-4" style="border-color:rgba(123,104,238,.15)">
+      <p class="text-center mb-0" style="font-weight:600;color:var(--clay-muted)">
+        Already registered? <a href="{{ url_for('auth.login') }}" style="color:var(--clay-primary);font-weight:800">Sign in →</a>
+      </p>
+    </div>
+  </div>
+</div>
+{% endblock %}
