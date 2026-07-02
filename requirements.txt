@@ -15,6 +15,6 @@ reportlab==4.2.2
 python-dotenv==1.0.1
 WTForms==3.1.2
 email-validator==2.2.0
-pydantic==1.10.12
+pydantic==2.8.2
 bleach==6.0.0
 gunicorn==22.0.0
