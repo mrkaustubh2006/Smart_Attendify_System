@@ -32,21 +32,26 @@ class Config:
     RATELIMIT_STORAGE_URL = os.getenv("RATELIMIT_STORAGE_URL", "memory://")
     RATELIMIT_DEFAULT = "200 per day;50 per hour"
 
-@staticmethod
+    @staticmethod
     def _db_uri():
-    host = os.getenv("MYSQLHOST", "localhost")
-    port = os.getenv("MYSQLPORT", "3306")
-    user = os.getenv("MYSQLUSER", "root")
-    password = quote_plus(os.getenv("MYSQLPASSWORD", ""))
-    database = os.getenv("MYSQLDATABASE", "smart_attendance")
+        host = os.getenv("MYSQLHOST", "localhost")
+        port = os.getenv("MYSQLPORT", "3306")
+        user = os.getenv("MYSQLUSER", "root")
+        password = quote_plus(os.getenv("MYSQLPASSWORD", ""))
+        database = os.getenv("MYSQLDATABASE", "smart_attendance")
 
-    uri = (
-        f"mysql+pymysql://{user}:{password}"
-        f"@{host}:{port}/{database}?charset=utf8mb4"
+        uri = (
+            f"mysql+pymysql://{user}:{password}"
+            f"@{host}:{port}/{database}?charset=utf8mb4"
     )
 
-    print("Database URI:", uri)
-    return uri
+        print("DB_HOST =", host)
+        print("DB_PORT =", port)
+        print("DB_USER =", user)
+        print("DB_NAME =", database)
+        print("Database URI =", uri)
+
+        return uri
 
 
 class DevelopmentConfig(Config):
