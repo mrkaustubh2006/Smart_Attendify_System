@@ -7,7 +7,14 @@ from flask import Blueprint, render_template, redirect, url_for, flash, request
 from flask_login import login_user, logout_user, login_required, current_user
 from pydantic import ValidationError
 
-from models import db, User, Student
+from models import (
+    db,
+    User,
+    Student,
+    Subject,
+    StudentSubject,
+    Class
+)
 from services.auth_service import (
 hash_password,
 check_password,
@@ -115,110 +122,165 @@ def login():
 @auth_bp.route("/register", methods=["GET", "POST"])
 def register():
 
+    if current_user.is_authenticated:
+        return redirect(url_for("auth.index"))
 
- if current_user.is_authenticated:
-    return redirect(url_for("auth.index"))
+    if request.method == "POST":
 
- if request.method == "POST":
+        raw = {
+            "name": request.form.get("name", ""),
+            "email": request.form.get("email", ""),
+            "password": request.form.get("password", ""),
+            "student_id": request.form.get("student_id", ""),
+            "class_name": request.form.get("class_name", ""),
+            "roll_no": request.form.get("roll_no", ""),
+            "department": request.form.get("department", ""),
+        }
 
-    raw = {
-        "name": request.form.get("name", ""),
-        "email": request.form.get("email", ""),
-        "password": request.form.get("password", ""),
-        "student_id": request.form.get("student_id", ""),
-        "class_name": request.form.get("class_name", ""),
-        "roll_no": request.form.get("roll_no", ""),
-        "department": request.form.get("department", ""),
-    }
+        try:
+            data = RegisterSchema(**raw).model_dump()
 
-    try:
-        data = RegisterSchema(**raw).model_dump()
+        except ValidationError as e:
 
-    except ValidationError as e:
+            log_action(
+                None,
+                "validation_failure",
+                details=e.json(),
+                ip_address=request.remote_addr,
+            )
+
+            flash(
+                "Invalid input. Please check your details and try again.",
+                "danger",
+            )
+
+            subjects = Subject.query.filter_by(
+                is_active=True
+            ).order_by(
+                Subject.subject_name
+            ).all()
+
+            return render_template(
+                "auth/register.html",
+                subjects=subjects
+            )
+
+        if User.query.filter_by(email=data["email"]).first():
+
+            flash(
+                "Email already registered.",
+                "danger",
+            )
+
+            subjects = Subject.query.filter_by(
+                is_active=True
+            ).all()
+
+            return render_template(
+                "auth/register.html",
+                subjects=subjects
+            )
+
+        if Student.query.filter_by(
+            student_id=data["student_id"]
+        ).first():
+
+            flash(
+                "Student ID already exists.",
+                "danger",
+            )
+
+            subjects = Subject.query.filter_by(
+                is_active=True
+            ).all()
+
+            return render_template(
+                "auth/register.html",
+                subjects=subjects
+            )
+
+        user = User(
+            email=data["email"],
+            password_hash=hash_password(data["password"]),
+            role="student",
+        )
+
+        db.session.add(user)
+        db.session.flush()
+
+        student = Student(
+            user_id=user.id,
+            student_id=data["student_id"],
+            name=data["name"],
+            email=data["email"],
+            class_name=data["class_name"],
+            roll_no=data["roll_no"],
+            department=data.get("department"),
+        )
+
+        db.session.add(student)
+        db.session.flush()
+
+        selected_subjects = request.form.getlist("subjects")
+
+        for subject_id in selected_subjects:
+
+            enrollment = StudentSubject(
+                student_id=student.id,
+                subject_id=int(subject_id)
+            )
+
+            db.session.add(enrollment)
+
+        try:
+            qr_path = generate_student_qr(student)
+            student.qr_image_path = qr_path
+
+        except Exception:
+            pass
+
+        db.session.commit()
 
         log_action(
-            None,
-            "validation_failure",
-            details=e.json(),
-            ip_address=request.remote_addr,
+            user.id,
+            "student_registered",
+            "Student",
+            student.id,
+            request.remote_addr,
         )
 
         flash(
-            "Invalid input. Please check your details and try again.",
-            "danger",
+            "Registration successful! Please login.",
+            "success",
         )
 
-        return render_template("auth/register.html")
+        return redirect(url_for("auth.login"))
 
-    # Duplicate email
-    if User.query.filter_by(email=data["email"]).first():
+    selected_class = request.args.get("class_name", "")
 
-        flash(
-            "Email already registered.",
-            "danger",
-        )
+    classes = Class.query.order_by(
+        Class.class_name
+    ).all()
 
-        return render_template("auth/register.html")
+    subjects = []
 
-    # Duplicate student id
-    if Student.query.filter_by(
-        student_id=data["student_id"]
-    ).first():
+    if selected_class:
+        subjects = Subject.query.filter_by(
+            class_name=selected_class,
+            is_active=True
+    ).order_by(
+        Subject.subject_name
+    ).all()
 
-        flash(
-            "Student ID already exists.",
-            "danger",
-        )
+    classes = Class.query.order_by(Class.class_name).all()
 
-        return render_template("auth/register.html")
+    return render_template(
+        "auth/register.html",
+        classes=classes,
+        subjects=subjects,
+        selected_class=""
+)
 
-    user = User(
-        email=data["email"],
-        password_hash=hash_password(data["password"]),
-        role="student",
-    )
-
-    db.session.add(user)
-    db.session.flush()
-
-    student = Student(
-        user_id=user.id,
-        student_id=data["student_id"],
-        name=data["name"],
-        email=data["email"],
-        class_name=data["class_name"],
-        roll_no=data["roll_no"],
-        department=data.get("department"),
-    )
-
-    db.session.add(student)
-    db.session.flush()
-
-    try:
-        qr_path = generate_student_qr(student)
-        student.qr_image_path = qr_path
-
-    except Exception:
-        pass
-
-    db.session.commit()
-
-    log_action(
-        user.id,
-        "student_registered",
-        "Student",
-        student.id,
-        request.remote_addr,
-    )
-
-    flash(
-        "Registration successful! Please login.",
-        "success",
-    )
-
-    return redirect(url_for("auth.login"))
-
- return render_template("auth/register.html")
 
 
 # ============================================================

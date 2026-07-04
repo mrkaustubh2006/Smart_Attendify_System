@@ -240,60 +240,166 @@ def delete_teacher(tid):
 @admin_required
 def subjects():
     subjects_list = Subject.query.order_by(Subject.subject_name).all()
-    return render_template("admin/subjects.html", subjects=subjects_list)
+    return render_template(
+        "admin/subjects.html",
+        subjects=subjects_list
+    )
 
 
 @admin_bp.route("/subjects/add", methods=["GET", "POST"])
 @login_required
 @admin_required
 def add_subject():
-    if request.method == "POST":
-        name = request.form.get("subject_name", "").strip()
-        code = request.form.get("subject_code", "").strip().upper()
-        class_name = request.form.get("class_name", "").strip()
-        department = request.form.get("department", "").strip()
 
-        if Subject.query.filter_by(subject_code=code).first():
-            flash("Subject code already exists.", "danger")
+    if request.method == "POST":
+
+        name = request.form.get(
+            "subject_name",
+            ""
+        ).strip()
+
+        code = request.form.get(
+            "subject_code",
+            ""
+        ).strip().upper()
+
+        class_name = request.form.get(
+            "class_name",
+            ""
+        ).strip()
+
+        department = request.form.get(
+            "department",
+            ""
+        ).strip()
+
+        course = request.form.get(
+            "course",
+            ""
+        ).strip()
+
+        year = request.form.get(
+            "year",
+            ""
+        ).strip()
+
+        if Subject.query.filter_by(
+            subject_code=code
+        ).first():
+
+            flash(
+                "Subject code already exists.",
+                "danger"
+            )
+
             return redirect(request.url)
 
-        subject = Subject(subject_name=name, subject_code=code,
-                          class_name=class_name, department=department)
+        subject = Subject(
+            subject_name=name,
+            subject_code=code,
+            class_name=class_name,
+            department=department,
+            course=course,
+            year=year
+        )
+
         db.session.add(subject)
         db.session.commit()
-        flash(f"Subject {name} added.", "success")
-        return redirect(url_for("admin.subjects"))
 
-    classes = Class.query.order_by(Class.class_name).all()
-    return render_template("admin/subject_form.html", subject=None, classes=classes)
+        flash(
+            f"Subject {name} added.",
+            "success"
+        )
+
+        return redirect(
+            url_for("admin.subjects")
+        )
+
+    classes = Class.query.order_by(
+        Class.class_name
+    ).all()
+
+    return render_template(
+        "admin/subject_form.html",
+        subject=None,
+        classes=classes
+    )
 
 
 @admin_bp.route("/subjects/<int:sid>/edit", methods=["GET", "POST"])
 @login_required
 @admin_required
 def edit_subject(sid):
+
     subject = Subject.query.get_or_404(sid)
+
     if request.method == "POST":
-        subject.subject_name = request.form.get("subject_name", subject.subject_name).strip()
-        subject.class_name = request.form.get("class_name", subject.class_name).strip()
-        subject.department = request.form.get("department", subject.department).strip()
+
+        subject.subject_name = request.form.get(
+            "subject_name",
+            subject.subject_name
+        ).strip()
+
+        subject.class_name = request.form.get(
+            "class_name",
+            subject.class_name
+        ).strip()
+
+        subject.department = request.form.get(
+            "department",
+            subject.department
+        ).strip()
+
+        subject.course = request.form.get(
+            "course",
+            subject.course
+        ).strip()
+
+        subject.year = request.form.get(
+            "year",
+            subject.year
+        ).strip()
+
         db.session.commit()
-        flash("Subject updated.", "success")
-        return redirect(url_for("admin.subjects"))
-    classes = Class.query.order_by(Class.class_name).all()
-    return render_template("admin/subject_form.html", subject=subject, classes=classes)
+
+        flash(
+            "Subject updated.",
+            "success"
+        )
+
+        return redirect(
+            url_for("admin.subjects")
+        )
+
+    classes = Class.query.order_by(
+        Class.class_name
+    ).all()
+
+    return render_template(
+        "admin/subject_form.html",
+        subject=subject,
+        classes=classes
+    )
 
 
 @admin_bp.route("/subjects/<int:sid>/delete", methods=["POST"])
 @login_required
 @admin_required
 def delete_subject(sid):
+
     subject = Subject.query.get_or_404(sid)
+
     db.session.delete(subject)
     db.session.commit()
-    flash("Subject deleted.", "warning")
-    return redirect(url_for("admin.subjects"))
 
+    flash(
+        "Subject deleted.",
+        "warning"
+    )
+
+    return redirect(
+        url_for("admin.subjects")
+    )
 
 # ── Classes ───────────────────────────────────────────────────────────────────
 

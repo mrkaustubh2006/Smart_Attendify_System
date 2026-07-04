@@ -1,6 +1,3 @@
-"""
-models/class_model.py
-"""
 
 from .base import db
 
@@ -12,22 +9,21 @@ class Class(db.Model):
         primary_key=True
     )
 
-class_name = db.Column(
-    db.String(50),
-    nullable=False,
-    unique=True
-)
+    class_name = db.Column(
+        db.String(50),
+        nullable=False,
+        unique=True
+    )
 
-department = db.Column(
-    db.String(100),
-    nullable=False
-)
+    department = db.Column(
+        db.String(100),
+        nullable=False
+    )
 
-academic_year = db.Column(
-    db.String(20),
-    nullable=True
-)
+    academic_year = db.Column(
+        db.String(20),
+        nullable=True
+    )
 
-def __repr__(self):
-    return f"<Class {self.class_name}>"
-
+    def __repr__(self):
+        return f"<Class {self.class_name}>"

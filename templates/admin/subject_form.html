@@ -1,42 +1,161 @@
 {% extends "shared/base.html" %}
 {% block title %}{% if subject %}Edit{% else %}Add{% endif %} Subject{% endblock %}
+
 {% block content %}
 <div class="container-fluid">
-    <h1 class="h2 mb-4">{% if subject %}Edit Subject{% else %}Add New Subject{% endif %}</h1>
+
+    <h1 class="h2 mb-4">
+        {% if subject %}
+            Edit Subject
+        {% else %}
+            Add New Subject
+        {% endif %}
+    </h1>
+
     <div class="card shadow">
         <div class="card-body">
+
             <form method="POST" class="row g-3">
+
                 <div class="col-md-6">
                     <label class="form-label">Subject Name</label>
-                    <input type="text" class="form-control" name="subject_name" value="{{ subject.subject_name if subject else '' }}" required>
+
+                    <input
+                        type="text"
+                        class="form-control"
+                        name="subject_name"
+                        value="{{ subject.subject_name if subject else '' }}"
+                        required>
                 </div>
+
                 <div class="col-md-6">
                     <label class="form-label">Subject Code</label>
-                    <input type="text" class="form-control" name="subject_code" value="{{ subject.subject_code if subject else '' }}" {% if subject %}readonly{% endif %} required>
+
+                    <input
+                        type="text"
+                        class="form-control"
+                        name="subject_code"
+                        value="{{ subject.subject_code if subject else '' }}"
+                        {% if subject %}readonly{% endif %}
+                        required>
                 </div>
+
                 <div class="col-md-6">
                     <label class="form-label">Class</label>
-                    <select class="form-select" name="class_name">
-                        <option>-- Select Class --</option>
+
+                    <select
+                        class="form-select"
+                        name="class_name"
+                        required>
+
+                        <option value="">
+                            -- Select Class --
+                        </option>
+
                         {% for cls in classes %}
-                        <option value="{{ cls.class_name }}" {% if subject and subject.class_name == cls.class_name %}selected{% endif %}>{{ cls.class_name }}</option>
+                        <option
+                            value="{{ cls.class_name }}"
+                            {% if subject and subject.class_name == cls.class_name %}
+                                selected
+                            {% endif %}
+                        >
+                            {{ cls.class_name }}
+                        </option>
                         {% endfor %}
+
                     </select>
                 </div>
+
+                <div class="col-md-6">
+                    <label class="form-label">Course</label>
+
+                    <input
+                        type="text"
+                        class="form-control"
+                        name="course"
+                        value="{{ subject.course if subject else '' }}"
+                        placeholder="BSc CS">
+                </div>
+
+                <div class="col-md-6">
+                    <label class="form-label">Year</label>
+
+                    <select class="form-select" name="year">
+
+                        <option value="">
+                            Select Year
+                        </option>
+
+                        <option value="FY"
+                        {% if subject and subject.year == "FY" %}
+                        selected
+                        {% endif %}
+                        >
+                            FY
+                        </option>
+
+                        <option value="SY"
+                        {% if subject and subject.year == "SY" %}
+                        selected
+                        {% endif %}
+                        >
+                            SY
+                        </option>
+
+                        <option value="TY"
+                        {% if subject and subject.year == "TY" %}
+                        selected
+                        {% endif %}
+                        >
+                            TY
+                        </option>
+
+                    </select>
+                </div>
+
                 <div class="col-md-6">
                     <label class="form-label">Department</label>
-                    <input type="text" class="form-control" name="department" value="{{ subject.department if subject else '' }}">
+
+                    <input
+                        type="text"
+                        class="form-control"
+                        name="department"
+                        value="{{ subject.department if subject else '' }}">
                 </div>
+
                 <div class="col-12">
-                    <button type="submit" class="btn btn-primary">
-                        <i class="fas fa-save"></i> {% if subject %}Update{% else %}Add{% endif %} Subject
+
+                    <button
+                        type="submit"
+                        class="btn btn-primary">
+
+                        <i class="fas fa-save"></i>
+
+                        {% if subject %}
+                            Update
+                        {% else %}
+                            Add
+                        {% endif %}
+
+                        Subject
+
                     </button>
-                    <a href="{{ url_for('admin.subjects') }}" class="btn btn-secondary">
-                        <i class="fas fa-times"></i> Cancel
+
+                    <a
+                        href="{{ url_for('admin.subjects') }}"
+                        class="btn btn-secondary">
+
+                        <i class="fas fa-times"></i>
+                        Cancel
+
                     </a>
+
                 </div>
+
             </form>
+
         </div>
     </div>
+
 </div>
 {% endblock %}

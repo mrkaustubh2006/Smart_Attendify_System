@@ -43,7 +43,7 @@ class Config:
         uri = (
             f"mysql+pymysql://{user}:{password}"
             f"@{host}:{port}/{database}?charset=utf8mb4"
-    )
+        )
 
         print("DB_HOST =", host)
         print("DB_PORT =", port)

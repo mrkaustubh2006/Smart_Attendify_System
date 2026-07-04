@@ -1,57 +1,258 @@
 {% extends "shared/base.html" %}
 {% block title %}Register — Smart Attendance{% endblock %}
+
 {% block content %}
 <div class="bg-blob bg-blob-1"></div>
 <div class="bg-blob bg-blob-2"></div>
 
 <div class="login-bg">
-  <div class="login-card" style="max-width:560px">
-    <div class="login-header">
-      <div class="login-icon"><i class="fas fa-user-plus"></i></div>
-      <div class="login-title">Create Account</div>
-      <div class="login-sub">Student Self-Registration Portal</div>
+    <div class="login-card" style="max-width:900px">
+
+        <div class="login-header">
+            <div class="login-icon">
+                <i class="fas fa-user-plus"></i>
+            </div>
+
+            <div class="login-title">
+                Student Registration
+            </div>
+
+            <div class="login-sub">
+                Create your Smart Attendance account
+            </div>
+        </div>
+
+        <div class="login-body">
+
+            <form method="POST" class="row g-3">
+
+                <div class="col-md-6">
+                    <label class="form-label">Full Name *</label>
+                    <input type="text"
+                           class="form-control"
+                           name="name"
+                           required>
+                </div>
+
+                <div class="col-md-6">
+                    <label class="form-label">Email *</label>
+                    <input type="email"
+                           class="form-control"
+                           name="email"
+                           required>
+                </div>
+
+                <div class="col-md-6">
+                    <label class="form-label">Student ID *</label>
+                    <input type="text"
+                           class="form-control"
+                           name="student_id"
+                           required>
+                </div>
+
+                <div class="col-md-6">
+                    <label class="form-label">Roll Number *</label>
+                    <input type="text"
+                           class="form-control"
+                           name="roll_no"
+                           required>
+                </div>
+
+                <div class="col-md-6">
+                    <label class="form-label">Course *</label>
+                    <input type="text"
+                           class="form-control"
+                           name="course"
+                           placeholder="BSc CS"
+                           required>
+                </div>
+
+                <div class="col-md-6">
+                    <label class="form-label">Year *</label>
+
+                    <select class="form-select"
+                            name="year"
+                            required>
+
+                        <option value="">Select Year</option>
+                        <option value="FY">FY</option>
+                        <option value="SY">SY</option>
+                        <option value="TY">TY</option>
+
+                    </select>
+                </div>
+
+                <div class="col-md-6">
+                    <label class="form-label">Department *</label>
+
+                    <input type="text"
+                           class="form-control"
+                           name="department"
+                           value="Computer Science"
+                           required>
+                </div>
+
+                <div class="col-md-6">
+                    <label class="form-label">Gender *</label>
+
+                    <select class="form-select"
+                            name="gender"
+                            required>
+
+                        <option value="">Select Gender</option>
+                        <option value="Male">Male</option>
+                        <option value="Female">Female</option>
+                        <option value="Other">Other</option>
+
+                    </select>
+                </div>
+
+                <!-- Class Selection -->
+
+                <div class="col-md-6">
+                    <label class="form-label">Class *</label>
+
+                    <select class="form-select"
+                            name="class_name">
+
+                        <option value="">
+                            Select Class
+                        </option>
+
+                        {% for cls in classes %}
+                        <option
+                            value="{{ cls.class_name }}"
+                            {% if selected_class == cls.class_name %}selected{% endif %}
+                        >
+                            {{ cls.class_name }}
+                        </option>
+                        {% endfor %}
+
+                    </select>
+                </div>
+
+                <div class="col-md-6 d-flex align-items-end">
+
+                    <button
+                        type="submit"
+                        formaction="{{ url_for('auth.register') }}"
+                        formmethod="get"
+                        class="btn btn-secondary w-100">
+
+                        Load Subjects
+
+                    </button>
+
+                </div>
+
+                <!-- Password -->
+
+                <div class="col-12">
+                    <label class="form-label">Password *</label>
+
+                    <input type="password"
+                           class="form-control"
+                           name="password"
+                           required>
+                </div>
+
+                <!-- Subjects -->
+            <p><strong>Selected Class:</strong> {{ selected_class }}</p>
+<p><strong>Total Subjects:</strong> {{ subjects|length }}</p>
+                <div class="col-12">
+
+                    <h5 class="mb-3">
+                        Select Subjects
+                    </h5>
+
+                    {% if subjects %}
+
+                        <div class="row">
+
+                            {% for subject in subjects %}
+
+                            <div class="col-md-4 mb-3">
+
+                                <div class="card border-primary">
+
+                                    <div class="card-body">
+
+                                        <div class="form-check">
+
+                                            <input
+                                                class="form-check-input"
+                                                type="checkbox"
+                                                name="subjects"
+                                                value="{{ subject.id }}">
+
+                                            <label class="form-check-label">
+
+                                                <strong>
+                                                    {{ subject.subject_name }}
+                                                </strong>
+
+                                                <br>
+
+                                                <small>
+                                                    {{ subject.subject_code }}
+                                                </small>
+
+                                            </label>
+
+                                        </div>
+
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+                            {% endfor %}
+
+                        </div>
+
+                    {% else %}
+
+                        <div class="alert alert-info">
+                            Select a class and click "Load Subjects"
+                        </div>
+
+                    {% endif %}
+
+                </div>
+
+                <!-- Submit -->
+
+                <div class="col-12">
+
+                    <button type="submit"
+                            class="btn btn-primary w-100 btn-lg">
+
+                        <i class="fas fa-user-check me-2"></i>
+
+                        Create Account
+
+                    </button>
+
+                </div>
+
+            </form>
+
+            <hr>
+
+            <p class="text-center mb-0">
+
+                Already registered?
+
+                <a href="{{ url_for('auth.login') }}">
+                    Login Here
+                </a>
+
+            </p>
+
+        </div>
+
     </div>
-    <div class="login-body">
-      <form method="POST" class="row g-3">
-        <div class="col-md-6">
-          <label class="form-label">Full Name *</label>
-          <input type="text" class="form-control" name="name" placeholder="John Doe" required>
-        </div>
-        <div class="col-md-6">
-          <label class="form-label">Email Address *</label>
-          <input type="email" class="form-control" name="email" placeholder="john@school.edu" required>
-        </div>
-        <div class="col-md-6">
-          <label class="form-label">Student ID *</label>
-          <input type="text" class="form-control" name="student_id" placeholder="STU2024001" required>
-        </div>
-        <div class="col-md-6">
-          <label class="form-label">Roll Number *</label>
-          <input type="text" class="form-control" name="roll_no" placeholder="42" required>
-        </div>
-        <div class="col-md-6">
-          <label class="form-label">Class / Section *</label>
-          <input type="text" class="form-control" name="class_name" placeholder="B.Tech 2nd Year - A" required>
-        </div>
-        <div class="col-md-6">
-          <label class="form-label">Department</label>
-          <input type="text" class="form-control" name="department" placeholder="Computer Science">
-        </div>
-        <div class="col-12">
-          <label class="form-label">Password *</label>
-          <input type="password" class="form-control" name="password" placeholder="Min 8 characters" required>
-        </div>
-        <div class="col-12 mt-2">
-          <button type="submit" class="btn btn-primary w-100 btn-lg">
-            <i class="fas fa-user-check me-2"></i> Create Account
-          </button>
-        </div>
-      </form>
-      <hr class="my-4" style="border-color:rgba(123,104,238,.15)">
-      <p class="text-center mb-0" style="font-weight:600;color:var(--clay-muted)">
-        Already registered? <a href="{{ url_for('auth.login') }}" style="color:var(--clay-primary);font-weight:800">Sign in →</a>
-      </p>
-    </div>
-  </div>
 </div>
+
 {% endblock %}
