@@ -36,7 +36,6 @@ class Config:
     def _db_uri():
         database_url = os.getenv("DATABASE_URL")
 
-        # Render PostgreSQL
         if database_url:
             if database_url.startswith("postgres://"):
                 database_url = database_url.replace(
@@ -46,7 +45,6 @@ class Config:
                 )
             return database_url
 
-        # Fallback MySQL (local development)
         host = os.getenv("MYSQLHOST", "localhost")
         port = os.getenv("MYSQLPORT", "3306")
         user = os.getenv("MYSQLUSER", "root")
