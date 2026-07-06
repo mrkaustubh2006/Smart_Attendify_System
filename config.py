@@ -19,13 +19,21 @@ class Config:
     SESSION_COOKIE_SAMESITE = "Lax"
     WTF_CSRF_ENABLED = True
 
+    QR_CODES_DIR = os.path.join(
+        os.path.dirname(__file__),
+        os.getenv("QR_CODES_DIR", "qr_codes"),
+    )
+
+    EXPORTS_DIR = os.path.join(
+        os.path.dirname(__file__),
+        os.getenv("EXPORTS_DIR", "exports"),
+    )
+
     RATELIMIT_STORAGE_URL = os.getenv("RATELIMIT_STORAGE_URL", "memory://")
     RATELIMIT_DEFAULT = "200 per day;50 per hour"
 
     @staticmethod
     def _db_uri():
-        """Return a SQLAlchemy database URI from environment."""
-
         database_url = os.getenv("DATABASE_URL")
 
         if database_url:
