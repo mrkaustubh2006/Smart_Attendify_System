@@ -26,8 +26,31 @@ def create_app(env="development"):
     print("EXPORTS_DIR =", app.config.get("EXPORTS_DIR"))
 
     # Initialize extensions
-    db.init_app(app)
-    bcrypt.init_app(app)
+    # Initialize extensions
+db.init_app(app)
+bcrypt.init_app(app)
+
+# Create database tables and default admin
+with app.app_context():
+    db.create_all()
+
+    try:
+        if User.query.filter_by(role="admin").count() == 0:
+            from services.auth_service import hash_password
+
+            admin = User(
+                email=os.environ.get("ADMIN_EMAIL", "admin@user.com"),
+                password_hash=hash_password(
+                    os.environ.get("ADMIN_PASSWORD", "Admin@1234")
+                ),
+                role="admin",
+            )
+
+            db.session.add(admin)
+            db.session.commit()
+
+    except Exception as e:
+        print("Database initialization error:", e)
 
     # Flask-Login
     login_manager = LoginManager()
