@@ -4,7 +4,7 @@ Initializes Flask, blueprints, authentication, rate limiting, and error handlers
 """
 
 import os
-from flask import Flask, render_template, request
+from flask import Flask, app, render_template, request
 from flask_login import LoginManager
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
@@ -21,6 +21,9 @@ def create_app(env="development"):
     # Load configuration
     config = config_map.get(env, config_map["development"])
     app.config.from_object(config)
+    print("CONFIG CLASS =", config)
+    print("QR_CODES_DIR =", app.config.get("QR_CODES_DIR"))
+    print("EXPORTS_DIR =", app.config.get("EXPORTS_DIR"))
 
     # Initialize extensions
     db.init_app(app)
@@ -45,8 +48,11 @@ def create_app(env="development"):
     )
 
     # Create directories
-    os.makedirs(app.config["QR_CODES_DIR"], exist_ok=True)
-    os.makedirs(app.config["EXPORTS_DIR"], exist_ok=True)
+    qr_dir = app.config.get("QR_CODES_DIR", "qr_codes")
+    export_dir = app.config.get("EXPORTS_DIR", "exports")
+
+    os.makedirs(qr_dir, exist_ok=True)
+    os.makedirs(export_dir, exist_ok=True)
 
     # Register blueprints
     from routes.auth import auth_bp
