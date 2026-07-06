@@ -32,30 +32,30 @@ class Config:
     RATELIMIT_STORAGE_URL = os.getenv("RATELIMIT_STORAGE_URL", "memory://")
     RATELIMIT_DEFAULT = "200 per day;50 per hour"
 
-@staticmethod
-def _db_uri():
+    @staticmethod
+    def _db_uri():
     """Return a SQLAlchemy database URI from environment."""
 
-    database_url = os.getenv("DATABASE_URL")
+        database_url = os.getenv("DATABASE_URL")
 
-    if database_url:
-        if database_url.startswith("postgres://"):
+        if database_url:
+            if database_url.startswith("postgres://"):
             database_url = database_url.replace(
                 "postgres://",
                 "postgresql://",
                 1
-            )
-        return database_url
+                )
+            return database_url
 
-    host = os.getenv("MYSQLHOST", "localhost")
-    port = os.getenv("MYSQLPORT", "3306")
-    user = os.getenv("MYSQLUSER", "root")
-    password = quote_plus(os.getenv("MYSQLPASSWORD", ""))
-    database = os.getenv("MYSQLDATABASE", "smart_attendance")
+        host = os.getenv("MYSQLHOST", "localhost")
+        port = os.getenv("MYSQLPORT", "3306")
+        user = os.getenv("MYSQLUSER", "root")
+        password = quote_plus(os.getenv("MYSQLPASSWORD", ""))
+        database = os.getenv("MYSQLDATABASE", "smart_attendance")
 
-    return (
-        f"mysql+pymysql://{user}:{password}"
-        f"@{host}:{port}/{database}?charset=utf8mb4"
+        return (
+            f"mysql+pymysql://{user}:{password}"
+            f"@{host}:{port}/{database}?charset=utf8mb4"
     )
 
 
